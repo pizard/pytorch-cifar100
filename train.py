@@ -58,7 +58,7 @@ def train(epoch):
                 pass
                 # writer.add_scalar('LastLayerGradients/grad_norm2_bias', para.grad.norm(), n_iter)
 
-        if batch_index / (len(cifar100_training_loader)/25) == 0:
+        if batch_index % (len(cifar100_training_loader)/10) == 0:
             print('Training Epoch: {epoch} [{trained_samples}/{total_samples}]\tLoss: {:0.4f}\tLR: {:0.6f}\tAccuracy: {:.4f}'.format(
                 loss.item(),
                 optimizer.param_groups[0]['lr'],
