@@ -58,7 +58,7 @@ def train(epoch):
                 pass
                 # writer.add_scalar('LastLayerGradients/grad_norm2_bias', para.grad.norm(), n_iter)
 
-        if batch_index % (len(cifar100_training_loader)/10) == 0:
+        if batch_index % int(len(cifar100_training_loader)/10) == 0:
             print('Training Epoch: {epoch} [{trained_samples}/{total_samples}]\tLoss: {:0.4f}\tLR: {:0.6f}\tAccuracy: {:.4f}'.format(
                 loss.item(),
                 optimizer.param_groups[0]['lr'],
@@ -125,7 +125,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-net', type=str, default="resnet50", required=False, help='net type')
-    parser.add_argument('-gpu', action='store_true', default=True, help='use gpu or not')
+    parser.add_argument('-gpu', action='store_true', default=False, help='use gpu or not')
     parser.add_argument('-b', type=int, default=128, help='batch size for dataloader')
     parser.add_argument('-warm', type=int, default=1, help='warm up training phase')
     parser.add_argument('-lr', type=float, default=0.1, help='initial learning rate')
