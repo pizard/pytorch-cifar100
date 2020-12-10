@@ -30,6 +30,7 @@ def train(epoch):
 
     start = time.time()
     net.train()
+
     for batch_index, (images, labels) in enumerate(cifar100_training_loader):
         if epoch <= args.warm:
             warmup_scheduler.step()
@@ -43,7 +44,9 @@ def train(epoch):
         loss = loss_function(outputs, labels)
         loss.backward()
         optimizer.step()
-
+        with torch.no_grad():
+            _, preds = outputs.max(1)
+            correct = preds.eq(labels).sum()
         n_iter = (epoch - 1) * len(cifar100_training_loader) + batch_index + 1
 
         last_layer = list(net.children())[-1]
@@ -56,12 +59,14 @@ def train(epoch):
                 # writer.add_scalar('LastLayerGradients/grad_norm2_bias', para.grad.norm(), n_iter)
 
         if batch_index / (len(cifar100_training_loader)/25) == 0:
-            print('Training Epoch: {epoch} [{trained_samples}/{total_samples}]\tLoss: {:0.4f}\tLR: {:0.6f}'.format(
+            print('Training Epoch: {epoch} [{trained_samples}/{total_samples}]\tLoss: {:0.4f}\tLR: {:0.6f}\tAccuracy: {:.4f}'.format(
                 loss.item(),
                 optimizer.param_groups[0]['lr'],
+                correct.float() / args.b,
                 epoch=epoch,
                 trained_samples=batch_index * args.b + len(images),
-                total_samples=len(cifar100_training_loader.dataset)
+                total_samples=len(cifar100_training_loader.dataset),
+
             ))
 
         #update training loss for each iteration
@@ -98,9 +103,9 @@ def eval_training(epoch=0, tb=True):
         correct += preds.eq(labels).sum()
 
     finish = time.time()
-    if args.gpu:
-        print('GPU INFO.....')
-        print(torch.cuda.memory_summary(), end='')
+    # if args.gpu:
+    #     print('GPU INFO.....')
+    #     print(torch.cuda.memory_summary(), end='')
     print('Evaluating Network.....')
     print('Test set: Average loss: {:.4f}, Accuracy: {:.4f}, Time consumed:{:.2f}s'.format(
         test_loss / len(cifar100_test_loader.dataset),
